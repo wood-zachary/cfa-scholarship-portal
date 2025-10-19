@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 // import passport from "./utils/passportConfig";
 // import routes from "./routes";
 
-const BACKEND_PORT = Number(process.env.BACKEND_PORT ?? 4000);
+const BACKEND_PORT = Number(process.env.BACKEND_PORT ?? 8080);
 const FRONTEND_ADDRESS = process.env.FRONTEND_ADDRESS ?? "*";
 const SESSION_SECRET = process.env.SESSION_SECRET ?? "dev-secret";
 const PRODUCTION = process.env.PRODUCTION_STR === "true";
