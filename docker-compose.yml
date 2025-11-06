@@ -1,60 +1,62 @@
 services:
-    base:
-        image: cfa-scholarship-portal-dev-base
-        build:
-            context: .
-            dockerfile: base.dockerfile
-        volumes:
-            - node_modules:/srv/cfa-scholarship-portal/node_modules
-            - ./yarn.lock:/srv/cfa-scholarship-portal/yarn.lock
-            - ./package.json:/srv/cfa-scholarship-portal/package.json:ro
-            - ./frontend/package.json:/srv/cfa-scholarship-portal/frontend/package.json:ro
-            - ./backend/package.json:/srv/cfa-scholarship-portal/backend/package.json:ro
-        command: yarn install --immutable
-    db:
-        image: mongo:7
-        networks:
-            - backend
-        ports:
-            - 27017:27017
-        environment:
-            MONGO_INITDB_ROOT_USERNAME: cfa-scholarship-portal
-            MONGO_INITDB_ROOT_PASSWORD: local_dev
-    frontend:
-        image: cfa-scholarship-portal-dev-base
-        depends_on: &base
-            base:
-                condition: service_completed_successfully
-        ports:
-            - 3000:3000
-        volumes:
-            - ./node_modules:/srv/cfa-scholarship-portal/node_modules
-            - ./frontend/node_modules:/srv/cfa-scholarship-portal/frontend/node_modules
-            - ./frontend:/srv/cfa-scholarship-portal/frontend
-        working_dir: /srv/cfa-scholarship-portal/frontend
-        command: yarn dev
-    backend:
-        image: cfa-scholarship-portal-dev-base
-        depends_on:
-            <<: *base
-            db:
-                condition:
-                    service_started
-        ports:
-            - 8080:8080
-        networks:
-            - backend
-        volumes:
-            - node_modules:/srv/cfa-scholarship-portal/node_modules
-            - ./backend/node_modules:/srv/cfa-scholarship-portal/backend/node_modules
-            - ./backend:/srv/cfa-scholarship-portal/backend:ro
+  base:
+    build:
+      context: .
+      dockerfile: base.dockerfile
+    image: cfa-scholarship-portal-dev-base
+    command: ["true"]
 
-        working_dir: /srv/cfa-scholarship-portal/backend
-        command: yarn dev
-        environment:
-            DB_URL: mongodb://cfa-scholarship-portal:local_dev@db
+  db:
+    image: mongo:7
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: cfa-scholarship-portal
+      MONGO_INITDB_ROOT_PASSWORD: local_dev
+    volumes:
+      - db-data:/data/db
+    networks:
+      - backend
+
+  frontend:
+    image: cfa-scholarship-portal-dev-base
+    depends_on:
+      - base
+    ports:
+      - 3000:3000
+    working_dir: /srv/cfa-scholarship-portal/frontend
+    command: ["yarn", "dev"]
+    volumes:
+      - ./frontend:/srv/cfa-scholarship-portal/frontend
+      - ./yarn.lock:/srv/cfa-scholarship-portal/yarn.lock
+      - ./package.json:/srv/cfa-scholarship-portal/package.json:ro
+      - ./frontend/package.json:/srv/cfa-scholarship-portal/frontend/package.json:ro
+      - frontend_node_modules:/srv/cfa-scholarship-portal/frontend/node_modules
+
+  backend:
+    image: cfa-scholarship-portal-dev-base
+    depends_on:
+      - base
+      - db
+    ports:
+      - 8080:8080
+    networks:
+      - backend
+    working_dir: /srv/cfa-scholarship-portal/backend
+    command: ["yarn", "dev"]
+    environment:
+      DB_URL: mongodb://cfa-scholarship-portal:local_dev@db
+    volumes:
+      - ./backend:/srv/cfa-scholarship-portal/backend
+      - ./yarn.lock:/srv/cfa-scholarship-portal/yarn.lock
+      - ./package.json:/srv/cfa-scholarship-portal/package.json:ro
+      - ./backend/package.json:/srv/cfa-scholarship-portal/backend/package.json:ro
+      - backend_node_modules:/srv/cfa-scholarship-portal/backend/node_modules
+
 networks:
-    backend:
+  backend:
+
 volumes:
-    node_modules:
-    db-data:
+  frontend_node_modules:
+  backend_node_modules:
+  db-data:

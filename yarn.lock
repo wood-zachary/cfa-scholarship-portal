@@ -1052,9 +1052,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cfa-backend@workspace:backend":
+"cfa-scholarship-portal-backend@workspace:backend":
   version: 0.0.0-use.local
-  resolution: "cfa-backend@workspace:backend"
+  resolution: "cfa-scholarship-portal-backend@workspace:backend"
   dependencies:
     "@types/express": "npm:^4.17.0"
     "@types/node": "npm:^24.7.2"
